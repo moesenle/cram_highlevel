@@ -1,4 +1,3 @@
-;;;
 ;;; Copyright (c) 2010, Lorenz Moesenlechner <moesenle@in.tum.de>
 ;;; All rights reserved.
 ;;; 
@@ -25,7 +24,6 @@
 ;;; CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ;;; ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ;;; POSSIBILITY OF SUCH DAMAGE.
-;;;
 
 (in-package :perception-pm)
 
@@ -137,3 +135,37 @@
         (fail 'object-not-found :object-desig object-designator))
       (ros-info (perception process-module) "Found objects: ~a" result)
       result)))
+
+(defun make-handled-object-designator (&key object-type
+                                            object-pose
+                                            handles)
+  "Creates and returns an object designator with object type
+`object-type' and object pose `object-pose' and attaches location
+designators according to handle information in `handles'."
+  (let ((combined-description (append `((desig-props:type ,object-type)
+                                        (desig-props:at
+                                         ,(cram-designators:make-designator
+                                           'cram-designators:location
+                                           `((desig-props:pose ,object-pose)))))
+                                      `,(make-handle-designator-sequence handles))))
+    (cram-designators:make-designator
+     'cram-designators:object
+     `,combined-description)))
+
+(defun make-handle-designator-sequence (handles)
+  "Converts the sequence `handles' (handle-pose handle-radius) into a
+sequence of object designators representing handle objects. Each
+handle object then consist of a location designator describing its
+relative position as well as the handle's radius for grasping
+purposes."
+  (mapcar (lambda (handle-desc)
+            `(desig-props:handle
+              ,(cram-designators:make-designator
+                'cram-designators:object
+                `((desig-props:at
+                   ,(cram-designators:make-designator
+                     'cram-designators:location
+                     `((desig-props:pose ,(first handle-desc)))))
+                  (desig-props:radius ,(second handle-desc))
+                  (desig-props:type desig-props:handle)))))
+          handles))
