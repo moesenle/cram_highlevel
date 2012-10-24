@@ -29,22 +29,22 @@
 
 (defvar *at-location-lock* (sb-thread:make-mutex :name "AT-LOCATION-LOCK")
   "Mutex that is used to synchronize on parallel AT-LOCATION forms. To
-prevent oscillations, we need to wait until one AT-LOCATION form
-terminates before executing the body of the second one.")
+  prevent oscillations, we need to wait until one AT-LOCATION form
+  terminates before executing the body of the second one.")
 
 (cram-projection:define-special-projection-variable *at-location-lock*
     (sb-thread:make-mutex :name "AT-LOCATION-PROJECTION-LOCK"))
 
 (defun location-designator-reached (current-location location-designator)
   "Returns a boolean fluent that indicates if `current-location' is a
-valid solution for `location-designator'"
+  valid solution for `location-designator'"
   (let ((result (validate-location-designator-solution location-designator current-location)))
     result))
 
 (defmacro with-equate-fluent ((designator fluent-name) &body body)
   "Executes `body' with `fluent-name' bound to a lexical variable. The
-fluent is pulsed whenever `designator' is equated to another
-designator."
+  fluent is pulsed whenever `designator' is equated to another
+  designator."
   (alexandria:with-gensyms (callback)
     `(let ((,fluent-name (make-fluent :value nil :name ',fluent-name)))
        (flet ((,callback (other)
