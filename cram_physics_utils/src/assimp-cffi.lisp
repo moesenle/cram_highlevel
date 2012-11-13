@@ -1,4 +1,5 @@
-;;; Copyright (c) 2012, Lorenz Moesenlechner <moesenle@in.tum.de>
+;;;
+;;; Copyright (c) 2010, Lorenz Moesenlechner <moesenle@in.tum.de>
 ;;; All rights reserved.
 ;;; 
 ;;; Redistribution and use in source and binary forms, with or without
@@ -25,26 +26,25 @@
 ;;; CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ;;; ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ;;; POSSIBILITY OF SUCH DAMAGE.
+;;;
 
-(defsystem cram-manipulation-knowledge
-  :author "Lorenz Moesenlechner"
-  :license "BSD"
-  :description "Definitions for manipulating objects, including
-  available grasps, trajectories etc."
-  
-  :depends-on (cram-reasoning
-               cram-utilities
-               physics-utils
-               cl-transforms
-               designators
-               roslisp
-               arm_navigation_msgs-msg)
-  :components
-  ((:module "src"
-    :components
-    ((:file "package")
-     (:file "grasps" :depends-on ("package"))
-     (:file "trajectories" :depends-on ("package"))
-     (:file "arms" :depends-on ("package"))
-     (:file "objects" :depends-on ("package"))
-     (:file "object-designator-extensions" :depends-on ("package"))))))
+(in-package :physics-utils)
+
+(defstruct model
+  vertices
+  triangles)
+
+(define-foreign-library assimp
+  (:unix "libassimp.so"))
+
+(use-foreign-library assimp)
+
+
+(defcfun ("aiImportFile" ai-import-file) ai-scene
+  (file :string)
+  (pflags ai-post-process-steps))
+
+(defcfun ("aiReleaseImport" ai-release-import) :void
+  (scene ai-scene))
+
+(defcfun ("aiGetErrorString" ai-get-error-string) :string)

@@ -1,4 +1,5 @@
-;;; Copyright (c) 2012, Lorenz Moesenlechner <moesenle@in.tum.de>
+;;;
+;;; Copyright (c) 2010, Lorenz Moesenlechner <moesenle@in.tum.de>
 ;;; All rights reserved.
 ;;; 
 ;;; Redistribution and use in source and binary forms, with or without
@@ -25,26 +26,31 @@
 ;;; CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ;;; ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ;;; POSSIBILITY OF SUCH DAMAGE.
+;;;
 
-(defsystem cram-manipulation-knowledge
+(cl:eval-when (:load-toplevel :execute)
+  (asdf:operate 'asdf:load-op 'cffi-ros-utils))
+
+;; We need to use g++ instead of cc here because assimp doesn't
+;; typedef its structs which causes compilation to fail.
+(setf cffi-grovel::*cc* "g++")
+
+(defsystem physics-utils
   :author "Lorenz Moesenlechner"
   :license "BSD"
-  :description "Definitions for manipulating objects, including
-  available grasps, trajectories etc."
   
-  :depends-on (cram-reasoning
-               cram-utilities
-               physics-utils
-               cl-transforms
-               designators
-               roslisp
-               arm_navigation_msgs-msg)
+  :depends-on (cl-transforms cffi cffi-ros-utils ros-load-manifest roslisp)
   :components
   ((:module "src"
-    :components
-    ((:file "package")
-     (:file "grasps" :depends-on ("package"))
-     (:file "trajectories" :depends-on ("package"))
-     (:file "arms" :depends-on ("package"))
-     (:file "objects" :depends-on ("package"))
-     (:file "object-designator-extensions" :depends-on ("package"))))))
+            :components
+            ((:file "package")
+             (:file "ros-uri-parser" :depends-on ("package"))
+             (:file "assimp-cffi" :depends-on ("package" "assimp-grovel"))
+             (:file "assimp-model-loader" :depends-on ("package" "assimp-cffi"))
+             (:file "mesh-utils" :depends-on ("package"))
+             (:file "ros-shape-utils" :depends-on ("package"))
+             (:file "masses" :depends-on ("package"))
+             (:file "event-queue" :depends-on ("package"))
+             (cffi-ros-utils:ros-grovel-file "assimp-grovel"
+                                             :ros-package "cram_physics_utils"
+                                             :depends-on ("package"))))))

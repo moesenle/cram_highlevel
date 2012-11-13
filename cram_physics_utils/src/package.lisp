@@ -1,4 +1,5 @@
-;;; Copyright (c) 2012, Lorenz Moesenlechner <moesenle@in.tum.de>
+;;;
+;;; Copyright (c) 2010, Lorenz Moesenlechner <moesenle@in.tum.de>
 ;;; All rights reserved.
 ;;; 
 ;;; Redistribution and use in source and binary forms, with or without
@@ -25,26 +26,21 @@
 ;;; CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ;;; ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ;;; POSSIBILITY OF SUCH DAMAGE.
+;;;
 
-(defsystem cram-manipulation-knowledge
-  :author "Lorenz Moesenlechner"
-  :license "BSD"
-  :description "Definitions for manipulating objects, including
-  available grasps, trajectories etc."
-  
-  :depends-on (cram-reasoning
-               cram-utilities
-               physics-utils
-               cl-transforms
-               designators
-               roslisp
-               arm_navigation_msgs-msg)
-  :components
-  ((:module "src"
-    :components
-    ((:file "package")
-     (:file "grasps" :depends-on ("package"))
-     (:file "trajectories" :depends-on ("package"))
-     (:file "arms" :depends-on ("package"))
-     (:file "objects" :depends-on ("package"))
-     (:file "object-designator-extensions" :depends-on ("package"))))))
+(in-package :cl-user)
+
+(defpackage physics-utils
+  (:use #:common-lisp #:cffi #:cffi-ros-utils)
+  (:export
+   load-3d-model
+   face make-face face-points face-normals
+   3d-model make-3d-model
+   3d-model-vertices 3d-model-faces
+   parse-uri calculate-aabb
+   scale-3d-model resize-3d-model
+   shape-msg->points shape-msg->mesh
+   points->point-cloud
+   calculate-mass
+   event-queue post-event get-next-event
+   wait-for-queue-empty))
