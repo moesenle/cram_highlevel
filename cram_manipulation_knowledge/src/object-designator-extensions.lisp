@@ -58,7 +58,7 @@
   (:documentation "Returns an instance of arm_navigation_msgs/Shape
   representing the object referenced by OBJECT-DESIGNATOR-DATA or NIL
   if no shape can be generated.")
-  (:method ((data desig:object-designator-data))
+  (:method ((data t))
     nil)
 
   (:method ((data object-shape-data-mixin))
@@ -78,15 +78,16 @@
        "arm_navigation_msgs/Shape"
        :type (roslisp-msg-protocol:symbol-code
               'arm_navigation_msgs-msg:shape :mesh)
-       :triangles (reduce (lambda (result triangle)
-                            (destructuring-bind (vector . index)
-                                result
-                              (assert (eql (list-length triangle) 3))
-                              (loop for point in triangle
-                                    for i from index
-                                    do (setf (aref vector i) point)
-                                    finally (return (cons vector i)))))
-                          faces :initial-value (make-array (* 3 (length faces))))
+       :triangles (car
+                   (reduce (lambda (result triangle)
+                             (destructuring-bind (vector . index)
+                                 result
+                               (assert (eql (list-length triangle) 3))
+                               (loop for point in triangle
+                                     for i from index
+                                     do (setf (aref vector i) point)
+                                     finally (return (cons vector i)))))
+                           faces :initial-value (cons (make-array (* 3 (length faces))) 0)))
        :vertices (map 'vector (lambda (point)
                                 (roslisp:make-msg
                                  "geometry_msgs/Point"
